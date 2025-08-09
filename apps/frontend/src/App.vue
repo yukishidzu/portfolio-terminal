@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useSettingsStore } from './stores/settings';
 import TerminalShell from './components/Terminal/TerminalShell.vue';
 import { useUiStore } from './stores/ui';
+import MobileToolbar from './components/MobileToolbar.vue';
 
 const settings = useSettingsStore();
 const ui = useUiStore();
@@ -61,6 +62,9 @@ onMounted(() => {
     <main class="flex-1 p-4">
       <TerminalShell />
     </main>
+    
+    <!-- Mobile toolbar -->
+    <MobileToolbar />
   </div>
   
 </template>

@@ -80,3 +80,40 @@ input, textarea {
   caret-color: var(--accent);
 }
 
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .terminal-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  /* Increase touch targets */
+  button, input, select {
+    min-height: 44px;
+  }
+  
+  /* Better spacing for mobile */
+  .terminal-output {
+    padding: 0.5rem;
+  }
+  
+  /* Adjust terminal padding for mobile toolbar */
+  main {
+    padding-bottom: 5rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  .command-palette-item {
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Better button spacing */
+  .mobile-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
