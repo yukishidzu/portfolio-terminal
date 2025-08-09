@@ -32,6 +32,22 @@
       "Email: example@example.com",
       "Telegram: @example"
     ]
+  },
+  "resume": {
+    "downloading": "Downloading resume..."
+  },
+  "experience": {
+    "output": [
+      "Experience placeholder (EN)",
+      "Company A — Role — 2020-2022",
+      "Company B — Role — 2018-2020"
+    ]
+  },
+  "education": {
+    "output": [
+      "Education placeholder (EN)",
+      "University X — BSc — 2014-2018"
+    ]
   }
 }
 

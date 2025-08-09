@@ -60,7 +60,19 @@ export function createBasicCommands(): Command[] {
     },
   };
 
-  return [help, clear, pwd, theme, sound];
+  const lang: Command = {
+    name: 'lang',
+    description: 'Change language / Сменить язык',
+    async execute(args) {
+      const next = args[0] as 'en' | 'ru' | undefined;
+      if (!next) return 'Usage: lang <en|ru>';
+      if (next !== 'en' && next !== 'ru') return 'Unknown language. Use: en or ru';
+      settings.setLanguage(next);
+      return `Language set to ${next.toUpperCase()}`;
+    },
+  };
+
+  return [help, clear, pwd, theme, sound, lang];
 }
 
 
