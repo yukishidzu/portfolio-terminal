@@ -11,43 +11,90 @@
   "about": {
     "description": "About me",
     "output": [
-      "Hi! This is a placeholder ABOUT.",
-      "Content will be added later (EN/RU)."
+      "👋 Hi! I'm a Full Stack Developer",
+      "",
+      "I create modern web applications with attention to detail",
+      "and focus on user experience. Passionate about clean code,",
+      "performance optimization, and emerging technologies.",
+      "",
+      "🚀 5+ years of experience",
+      "💼 10+ production projects",
+      "🎯 Problem solver & Team player"
     ]
   },
   "skills": {
-    "description": "Skills",
-    "output": ["Vue", "TypeScript", "Node.js", "Tailwind", "Canvas"]
+    "description": "Technical skills",
+    "output": [
+      "Frontend:  Vue.js, React, TypeScript, Tailwind CSS",
+      "Backend:   Node.js, Express, PostgreSQL, Redis",
+      "Tools:     Docker, Git, CI/CD, AWS, Linux",
+      "Languages: JavaScript, TypeScript, Python, Go"
+    ]
   },
   "projects": {
-    "description": "Projects",
+    "description": "Portfolio projects",
     "output": [
-      "1) Project One - https://example.com",
-      "2) Project Two - https://example.com"
+      "📂 Terminal Portfolio",
+      "   Interactive terminal-style portfolio website",
+      "   Tech: Vue 3, TypeScript, Canvas API",
+      "   → https://terminal-portfolio.example.com",
+      "",
+      "🛒 E-Commerce Platform",
+      "   Scalable platform serving 100k+ daily users",
+      "   Tech: React, Node.js, PostgreSQL",
+      "   → https://ecommerce.example.com",
+      "",
+      "🤖 AI Assistant Bot",
+      "   Intelligent chat assistant with NLP",
+      "   Tech: Python, OpenAI API, Redis",
+      "   → https://bot.example.com"
     ]
   },
   "contact": {
-    "description": "Contact",
+    "description": "Contact information",
     "output": [
-      "Email: example@example.com",
-      "Telegram: @example"
+      "📧 Email:    your.email@example.com",
+      "💬 Telegram: @yourtelegram",
+      "🐙 GitHub:   github.com/yourusername",
+      "💼 LinkedIn: linkedin.com/in/yourprofile"
     ]
   },
-  "resume": {
-    "downloading": "Downloading resume..."
-  },
   "experience": {
+    "description": "Work experience",
     "output": [
-      "Experience placeholder (EN)",
-      "Company A — Role — 2020-2022",
-      "Company B — Role — 2018-2020"
+      "🏢 Senior Full Stack Developer | TechCorp Inc.",
+      "   2021 - Present",
+      "   • Led microservices architecture development",
+      "   • Reduced API response time by 40%",
+      "   • Mentored team of 5 developers",
+      "",
+      "🚀 Full Stack Developer | StartupXYZ",
+      "   2019 - 2021",
+      "   • Built real-time collaboration features",
+      "   • Implemented CI/CD pipeline",
+      "   • Improved test coverage to 80%"
     ]
   },
   "education": {
+    "description": "Education",
     "output": [
-      "Education placeholder (EN)",
-      "University X — BSc — 2014-2018"
+      "🎓 Bachelor of Computer Science",
+      "   University Name | 2015-2019",
+      "   GPA: 3.8/4.0",
+      "",
+      "📜 Certifications:",
+      "   • AWS Solutions Architect (2022)",
+      "   • Google Cloud Developer (2021)"
     ]
+  },
+  "resume": {
+    "downloading": "📥 Downloading resume..."
+  },
+  "errors": {
+    "command_not_found": "Command not found: {{command}}",
+    "file_not_found": "No such file or directory: {{path}}",
+    "permission_denied": "Permission denied",
+    "game_not_available": "Game not available. Try: snake"
   }
 }
 
