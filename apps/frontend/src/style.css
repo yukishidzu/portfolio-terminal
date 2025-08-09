@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme tokens as CSS variables */
+:root {
+  /* Dracula (default) */
+  --bg: #0b0b0c;
+  --bg-secondary: #131316;
+  --text: #f4f4ff;
+  --text-muted: #c2c2d6;
+  --primary: #bd93f9;
+  --accent: #50fa7b;
+  --success: #50fa7b;
+  --warning: #f1fa8c;
+  --error: #ff5555;
+  --info: #8be9fd;
+  --border: #2b2b35;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme='dracula'] {
+  --bg: #0b0b0c;
+  --bg-secondary: #131316;
+  --text: #e9e9f4;
+  --text-muted: #b3b3c6;
+  --primary: #bd93f9;
+  --accent: #50fa7b;
+  --success: #50fa7b;
+  --warning: #f1fa8c;
+  --error: #ff5555;
+  --info: #8be9fd;
+  --border: #2b2b35;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme='solarized-light'] {
+  /* Solarized Light */
+  --bg: #fdf6e3;
+  --bg-secondary: #eee8d5;
+  --text: #073642;
+  --text-muted: #37545c; /* темнее для контраста placeholder */
+  --primary: #005f99; /* темнее для лучшего контраста */
+  --accent: #2aa198;
+  --success: #859900;
+  --warning: #b58900;
+  --error: #dc322f;
+  --info: #268bd2;
+  --border: #c9c3b4;
+  --shadow: rgba(0, 0, 0, 0.08);
+}
+
+html, body, #app { height: 100%; }
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: var(--font-size, 16px);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--primary) 30%, transparent);
+}
+
+a { color: var(--accent); }
+a:hover { opacity: 0.9; }
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Inputs */
+input, textarea {
+  caret-color: var(--accent);
+}
+

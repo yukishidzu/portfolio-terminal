@@ -1,0 +1,38 @@
+{
+  "welcome": "Добро пожаловать в Terminal Portfolio",
+  "status": {
+    "sound_on": "Звук включен",
+    "sound_off": "Звук выключен"
+  },
+  "help": {
+    "description": "Показать доступные команды",
+    "output": "Доступные команды:"
+  },
+  "about": {
+    "description": "Обо мне",
+    "output": [
+      "Привет! Здесь временный ABOUT.",
+      "Контент будет добавлен позже (RU/EN)."
+    ]
+  },
+  "skills": {
+    "description": "Навыки",
+    "output": ["Vue", "TypeScript", "Node.js", "Tailwind", "Canvas"]
+  },
+  "projects": {
+    "description": "Проекты",
+    "output": [
+      "1) Project One - https://example.com",
+      "2) Project Two - https://example.com"
+    ]
+  },
+  "contact": {
+    "description": "Контакты",
+    "output": [
+      "Email: example@example.com",
+      "Telegram: @example"
+    ]
+  }
+}
+
+

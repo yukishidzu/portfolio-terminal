@@ -1,0 +1,17 @@
+﻿node_modules/
+**/node_modules/
+apps/frontend/dist/
+apps/frontend/.vite/
+**/.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+.env
+.env.*
+**/*.tsbuildinfo
