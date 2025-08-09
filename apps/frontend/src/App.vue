@@ -4,9 +4,16 @@ import { useSettingsStore } from './stores/settings';
 import TerminalShell from './components/Terminal/TerminalShell.vue';
 import { useUiStore } from './stores/ui';
 import MobileToolbar from './components/MobileToolbar.vue';
+import KeyboardHelp from './components/KeyboardHelp.vue';
+import A11yAnnouncer from './components/A11yAnnouncer.vue';
+import { useKeyboardShortcuts } from './composables/useKeyboardShortcuts';
 
 const settings = useSettingsStore();
 const ui = useUiStore();
+
+// Initialize keyboard shortcuts
+useKeyboardShortcuts();
+
 const soundLabel = computed(() => (settings.soundEnabled ? '🔊' : '🔇'));
 const langLabel = computed(() => settings.language.toUpperCase());
 function toggleSound() {
@@ -23,10 +30,6 @@ function updateTime() {
 onMounted(() => {
   updateTime();
   setInterval(updateTime, 1000);
-  window.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'm') settings.toggleSound();
-    if (e.key === 'Escape') ui.closeGame();
-  });
 });
 </script>
 
@@ -65,6 +68,10 @@ onMounted(() => {
     
     <!-- Mobile toolbar -->
     <MobileToolbar />
+    
+    <!-- Accessibility and help components -->
+    <KeyboardHelp />
+    <A11yAnnouncer />
   </div>
   
 </template>

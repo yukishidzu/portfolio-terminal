@@ -72,7 +72,7 @@ export function createBasicCommands(): Command[] {
     },
   };
 
-  return [help, clear, pwd, theme, sound, lang];
+  return [help, clear, pwd, theme, sound, lang, shortcuts];
 }
 
 

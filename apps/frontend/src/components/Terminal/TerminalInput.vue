@@ -189,8 +189,10 @@ const promptText = computed(() => {
         @keydown="onKeydown"
         @input="onInput"
         aria-label="Terminal input"
+        aria-describedby="terminal-help"
         autocomplete="off"
         spellcheck="false"
+        role="textbox"
       />
     </div>
     
@@ -235,7 +237,7 @@ const promptText = computed(() => {
     </Transition>
     
     <!-- Help text -->
-    <p class="text-xs opacity-70 mt-2">
+    <p id="terminal-help" class="text-xs opacity-70 mt-2" role="note">
       Try: help | about | projects | theme | play snake | Ctrl+L to clear
     </p>
   </div>
