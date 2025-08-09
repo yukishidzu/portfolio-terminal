@@ -95,6 +95,9 @@
     "file_not_found": "No such file or directory: {{path}}",
     "permission_denied": "Permission denied",
     "game_not_available": "Game not available. Try: snake"
+  },
+  "terminal": {
+    "placeholder": "Type a command (help)"
   }
 }
 

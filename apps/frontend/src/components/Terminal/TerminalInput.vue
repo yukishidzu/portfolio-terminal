@@ -3,134 +3,256 @@ import { ref, onMounted, computed } from 'vue';
 import { getRegistry } from '../../commands/registry';
 import { useSettingsStore } from '../../stores/settings';
 import { useTerminalStore } from '../../stores/terminal';
+import { AutocompleteEngine, type Suggestion } from '../../utils/autocomplete';
 
 const registry = getRegistry();
-
 const terminal = useTerminalStore();
 const settings = useSettingsStore();
-const input = ref('');
-let historyIndex = -1; // -1 means current line
 
+const input = ref('');
+const inputEl = ref<HTMLInputElement | null>(null);
+const historyIndex = ref(-1);
+const suggestions = ref<Suggestion[]>([]);
+const selectedSuggestion = ref(0);
+const showSuggestions = ref(false);
+
+const autocomplete = new AutocompleteEngine();
+
+// Автодополнение при изменении input
+function updateSuggestions() {
+  if (!input.value.trim()) {
+    suggestions.value = [];
+    showSuggestions.value = false;
+    return;
+  }
+  
+  suggestions.value = autocomplete.getSuggestions(input.value, terminal.currentPath);
+  showSuggestions.value = suggestions.value.length > 0;
+  selectedSuggestion.value = 0;
+}
+
+// Выполнение команды
 async function execute() {
   const raw = input.value.trim();
   if (!raw) return;
+  
+  showSuggestions.value = false;
   terminal.pushHistory(raw);
   terminal.print(`$ ${raw}`, 'system');
-  historyIndex = -1;
+  historyIndex.value = -1;
+  
   const result = await registry.execute(raw);
   if (Array.isArray(result)) {
     for (const line of result) terminal.print(String(line));
   }
+  
   input.value = '';
+  suggestions.value = [];
 }
 
+// Применение автодополнения
+function applySuggestion(suggestion?: Suggestion) {
+  const s = suggestion || suggestions.value[selectedSuggestion.value];
+  if (!s) return;
+  
+  const parts = input.value.trim().split(/\s+/);
+  if (parts.length <= 1) {
+    // Completing command
+    input.value = s.value + ' ';
+  } else {
+    // Completing argument
+    parts[parts.length - 1] = s.value;
+    input.value = parts.join(' ') + ' ';
+  }
+  
+  showSuggestions.value = false;
+  suggestions.value = [];
+  inputEl.value?.focus();
+}
+
+// Обработка клавиатуры
 function onKeydown(e: KeyboardEvent) {
+  // Enter - выполнить команду
   if (e.key === 'Enter') {
     e.preventDefault();
-    execute();
+    if (showSuggestions.value && suggestions.value.length > 0) {
+      applySuggestion();
+    } else {
+      execute();
+    }
+    return;
   }
-  if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    const list = terminal.history;
-    historyIndex = Math.min(historyIndex + 1, list.length - 1);
-    input.value = historyIndex >= 0 ? list[historyIndex] : '';
-  }
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    const list = terminal.history;
-    historyIndex = Math.max(historyIndex - 1, -1);
-    input.value = historyIndex >= 0 ? list[historyIndex] : '';
-  }
-  // simple Tab completion by command names
+  
+  // Tab - автодополнение
   if (e.key === 'Tab') {
     e.preventDefault();
-    const current = input.value.trim();
-    if (!current) return;
-    const names = new Set(registry.getAvailable().map(c => c.name));
-    const candidates = Array.from(names).filter(n => n.startsWith(current));
-    if (candidates.length === 1) {
-      input.value = candidates[0] + ' ';
-    } else if (candidates.length > 1) {
-      const colWidth = Math.max(...candidates.map(c => c.length)) + 2;
-      let out = '';
-      for (let i = 0; i < candidates.length; i += 3) {
-        const a = candidates[i] ?? '';
-        const b = candidates[i+1] ?? '';
-        const c = candidates[i+2] ?? '';
-        out += a.padEnd(colWidth, ' ') + b.padEnd(colWidth, ' ') + c + '\n';
-      }
-      terminal.print(out.trimEnd());
+    if (!showSuggestions.value) {
+      updateSuggestions();
+    } else if (suggestions.value.length === 1) {
+      applySuggestion();
+    } else if (suggestions.value.length > 1) {
+      selectedSuggestion.value = (selectedSuggestion.value + 1) % suggestions.value.length;
     }
+    return;
+  }
+  
+  // Escape - закрыть подсказки
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    if (showSuggestions.value) {
+      showSuggestions.value = false;
+    } else {
+      input.value = '';
+    }
+    return;
+  }
+  
+  // История команд
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (showSuggestions.value) {
+      selectedSuggestion.value = Math.max(0, selectedSuggestion.value - 1);
+    } else {
+      const list = terminal.history;
+      historyIndex.value = Math.min(historyIndex.value + 1, list.length - 1);
+      input.value = historyIndex.value >= 0 ? list[historyIndex.value] : '';
+    }
+    return;
+  }
+  
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (showSuggestions.value) {
+      selectedSuggestion.value = Math.min(suggestions.value.length - 1, selectedSuggestion.value + 1);
+    } else {
+      const list = terminal.history;
+      historyIndex.value = Math.max(historyIndex.value - 1, -1);
+      input.value = historyIndex.value >= 0 ? list[historyIndex.value] : '';
+    }
+    return;
+  }
+  
+  // Ctrl+L - очистить экран
+  if (e.ctrlKey && e.key === 'l') {
+    e.preventDefault();
+    terminal.clearOutput();
+    return;
+  }
+  
+  // Ctrl+C - отмена ввода
+  if (e.ctrlKey && e.key === 'c') {
+    e.preventDefault();
+    input.value = '';
+    showSuggestions.value = false;
+    terminal.print('^C', 'system');
+    return;
   }
 }
 
-const inputEl = ref<HTMLInputElement | null>(null);
-onMounted(() => inputEl.value?.focus());
+// При вводе обновляем подсказки
+function onInput() {
+  historyIndex.value = -1;
+  updateSuggestions();
+}
 
-// Autocomplete suggestions
-const suggestions = computed(() => {
-  if (!input.value) return [];
-  const query = input.value.toLowerCase();
-  const commands = registry.getAvailable();
-  return commands
-    .filter(cmd => cmd.name.toLowerCase().startsWith(query))
-    .slice(0, 5);
+onMounted(() => {
+  inputEl.value?.focus();
+  
+  // Глобальный фокус на input при клике в любом месте терминала
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('button') && !target.closest('a')) {
+      inputEl.value?.focus();
+    }
+  });
 });
 
-// Ghost text for autocomplete
-const ghostText = computed(() => {
-  if (!input.value || suggestions.value.length === 0) return '';
-  const firstSuggestion = suggestions.value[0];
-  if (firstSuggestion.name.startsWith(input.value)) {
-    return firstSuggestion.name.slice(input.value.length);
-  }
-  return '';
+// Computed для отображения prompt
+const promptText = computed(() => {
+  return `${settings.username}@${settings.hostname}:${terminal.currentPath}$`;
 });
 </script>
 
 <template>
-  <div class="flex items-center gap-2">
-    <span class="text-accent select-none">{{ settings.username }}@{{ settings.hostname }}</span>
-    <span class="text-primary select-none">{{ terminal.currentPath }}</span>
-    <span class="text-text select-none">$</span>
-    <div class="flex-1 relative">
+  <div class="relative">
+    <!-- Input line -->
+    <div class="flex items-center gap-2">
+      <span class="text-accent select-none">{{ settings.username }}@{{ settings.hostname }}</span>
+      <span class="text-primary select-none">{{ terminal.currentPath }}</span>
+      <span class="text-text select-none">$</span>
       <input
         ref="inputEl"
         v-model="input"
         type="text"
-        class="w-full bg-bg outline-none text-text placeholder-text-muted px-3 py-2 rounded border border-border focus:border-accent shadow-sm"
-        placeholder="Type a command (help)"
+        class="flex-1 bg-transparent outline-none text-text placeholder-text-muted"
+        :placeholder="$t('terminal.placeholder')"
         @keydown="onKeydown"
+        @input="onInput"
         aria-label="Terminal input"
+        autocomplete="off"
+        spellcheck="false"
       />
-      <!-- Ghost text for autocomplete -->
-      <span 
-        v-if="ghostText" 
-        class="absolute left-0 top-0 pointer-events-none px-3 py-2 text-text-muted/50"
-        style="left: 3px; top: 2px;"
-      >
-        {{ input }}{{ ghostText }}
-      </span>
     </div>
-  </div>
-  
-  <!-- Autocomplete suggestions -->
-  <div v-if="suggestions.length > 0 && input" class="mt-2 p-2 bg-bg-secondary/50 rounded border border-border">
-    <div class="text-xs text-text-muted mb-1">Suggestions:</div>
-    <div class="flex flex-wrap gap-1">
-      <button
-        v-for="suggestion in suggestions"
-        :key="suggestion.name"
-        @click="input = suggestion.name + ' '"
-        class="px-2 py-1 text-xs bg-primary/20 hover:bg-primary/30 rounded border border-primary/30 transition-colors"
+    
+    <!-- Autocomplete suggestions -->
+    <Transition name="suggestions">
+      <div 
+        v-if="showSuggestions && suggestions.length > 0"
+        class="absolute bottom-full left-0 right-0 mb-2 bg-bg-secondary border border-border rounded-lg shadow-lg overflow-hidden"
       >
-        {{ suggestion.name }}
-      </button>
-    </div>
+        <div class="max-h-48 overflow-y-auto">
+          <div
+            v-for="(s, idx) in suggestions"
+            :key="s.value"
+            class="px-3 py-2 hover:bg-primary/10 cursor-pointer flex items-center justify-between"
+            :class="{ 'bg-primary/20': idx === selectedSuggestion }"
+            @click="applySuggestion(s)"
+          >
+            <div class="flex items-center gap-2">
+              <span class="text-text">{{ s.value }}</span>
+              <span 
+                v-if="s.type"
+                class="text-xs px-1 py-0.5 rounded"
+                :class="{
+                  'bg-primary/20 text-primary': s.type === 'command',
+                  'bg-accent/20 text-accent': s.type === 'directory',
+                  'bg-info/20 text-info': s.type === 'file',
+                  'bg-warning/20 text-warning': s.type === 'argument'
+                }"
+              >
+                {{ s.type }}
+              </span>
+            </div>
+            <span v-if="s.description" class="text-xs text-text-muted">
+              {{ s.description }}
+            </span>
+          </div>
+        </div>
+        <div class="px-3 py-1 border-t border-border text-xs text-text-muted">
+          Tab to complete • ↑↓ to navigate • Enter to select
+        </div>
+      </div>
+    </Transition>
+    
+    <!-- Help text -->
+    <p class="text-xs opacity-70 mt-2">
+      Try: help | about | projects | theme | play snake | Ctrl+L to clear
+    </p>
   </div>
-  
-  <p class="text-xs opacity-70 mt-2">Try: help | theme dracula | theme solarized-light | play snake</p>
 </template>
+
+<style scoped>
+.suggestions-enter-active,
+.suggestions-leave-active {
+  transition: all 0.15s ease;
+}
+
+.suggestions-enter-from,
+.suggestions-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>
 
 <style scoped>
 </style>
