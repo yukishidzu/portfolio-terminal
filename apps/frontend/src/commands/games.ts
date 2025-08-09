@@ -13,7 +13,7 @@ export function createGameCommands(): Command[] {
         ui.openGame('snake');
         return 'Launching Snake... (ESC to exit)';
       }
-      return `Game not available: ${game}`;
+      return `Game not available: ${game}. Try: snake`;
     },
   };
 
@@ -26,7 +26,24 @@ export function createGameCommands(): Command[] {
     },
   };
 
-  return [play, exit];
+  const scores: Command = {
+    name: 'scores',
+    description: 'Show high scores',
+    async execute() {
+      const snakeBest = Number(localStorage.getItem('snake_best') || '0');
+      
+      return [
+        '🏆 Local High Scores',
+        '═══════════════════',
+        `Snake: ${snakeBest > 0 ? snakeBest : 'No scores yet'}`,
+        '',
+        'Play games to set high scores!',
+        'Try: play snake'
+      ];
+    },
+  };
+
+  return [play, exit, scores];
 }
 
 
